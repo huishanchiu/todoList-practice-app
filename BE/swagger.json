@@ -1,0 +1,43 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Simple API",
+    "description": "A simple API for managing tasks"
+  },
+  "host": "localhost:5001",
+  "schemes": ["http"],
+  "paths": {
+    "/tasks": {
+      "get": {
+        "summary": "Get all tasks",
+        "responses": {
+          "200": {
+            "description": "List of tasks"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a task",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Task created"
+          }
+        }
+      }
+    }
+  }
+}
