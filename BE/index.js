@@ -7,16 +7,45 @@ app.use(express.json());
 
 app.get("/", (req, res) => res.send("hello"));
 
-let tasks = [
-  { id: 1, name: "洗衣服" },
-  { id: 2, name: "煮飯" },
-];
-app.get("/tasks", (req, res) => res.json(tasks));
-app.post("/tasks", (req, res) => {
-  console.log("req.body", req.body);
-  const task = req.body;
-  tasks.push(task);
-  res.status(201).json(task);
+let todos = [];
+let nextId = 1;
+
+app.get("/todos", (req, res) => res.json(todos));
+
+app.post("/todos", (req, res) => {
+  const { name } = req.body;
+  if (!name || !name.trim) {
+    return res.status(400).json({ message: "Todo name is required" });
+  }
+  const newTask = {
+    id: nextId++,
+    name,
+  };
+
+  todos.push(newTask);
+  res.status(201).json(newTask);
+});
+app.put("/todos/:id", (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  const todo = todos.find((task) => task.id === Number(id));
+  if (!todo) {
+    return res.status(404).json({ message: "Todo not found" });
+  }
+
+  todo.name = name;
+  res.json(todo);
+});
+
+app.delete("/todos/:id", (req, res) => {
+  const { id } = req.params;
+  const todoIndex = todos.findIndex((todo) => todo.id === Number(id));
+  if (todoIndex === -1) {
+    return res.status(404).json({ error: "Todo not found" });
+  }
+  todos.splice(todoIndex, 1);
+  res.status(200).json({ message: "Delete Seccessfully" });
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
