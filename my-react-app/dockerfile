@@ -1,0 +1,19 @@
+FROM node:18
+
+# 設定工作目錄
+WORKDIR /my-react-app
+
+# 複製 package.json 和 package-lock.json 
+COPY ./package.json ./
+COPY ./package-lock.json ./
+
+
+RUN npm install
+
+# 複製剩餘的前端程式碼
+COPY . .
+
+# 設定前端的 port
+EXPOSE 5173
+
+CMD ["npm", "run", "dev-watch"]
