@@ -14,8 +14,11 @@ app.get("/todos", (req, res) => res.json(todos));
 
 app.post("/todos", (req, res) => {
   const { name } = req.body;
-  if (!name || !name.trim) {
-    return res.status(400).json({ message: "Todo name is required" });
+  if (!name || !name.trim()) {
+    return res.status(400).json({
+      status: "error",
+      message: "Todo name is required",
+    });
   }
   const newTask = {
     id: nextId++,
@@ -29,9 +32,19 @@ app.put("/todos/:id", (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
 
+  if (!name || !name.trim()) {
+    return res.status(400).json({
+      status: "error",
+      message: "Todo name is required",
+    });
+  }
+
   const todo = todos.find((task) => task.id === Number(id));
   if (!todo) {
-    return res.status(404).json({ message: "Todo not found" });
+    return res.status(404).json({
+      status: "error",
+      message: "Todo not found",
+    });
   }
 
   todo.name = name;
@@ -42,10 +55,16 @@ app.delete("/todos/:id", (req, res) => {
   const { id } = req.params;
   const todoIndex = todos.findIndex((todo) => todo.id === Number(id));
   if (todoIndex === -1) {
-    return res.status(404).json({ error: "Todo not found" });
+    return res.status(404).json({
+      status: "error",
+      message: "Todo not found",
+    });
   }
   todos.splice(todoIndex, 1);
-  res.status(200).json({ message: "Delete Seccessfully" });
+  return res.status(200).json({
+    status: "success",
+    message: "Delete Seccessfully",
+  });
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
