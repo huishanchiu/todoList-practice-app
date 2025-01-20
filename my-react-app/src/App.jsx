@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import axios from "axios";
 import styled from "styled-components";
@@ -72,21 +70,23 @@ const TodoInput = styled.input`
 `;
 
 function App() {
-  const [count, setCount] = useState(0);
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
 
-  const getProductList = async () => {
+  const handleInputChange = (e) => {
+    setNewTodo(e.target.value);
+  };
+
+  const getTodoLists = async () => {
     try {
-      console.log("here");
       const response = await axios.get("http://localhost:5001/todos");
       setTodos(response.data);
     } catch (error) {
-      console.error("Error fetching todos:", error);
+      alert(`Error fetching todos: ${error.message}`);
     }
   };
 
-  const addTodo = async () => {
+  const handleAddTodo = async () => {
     if (!newTodo) {
       alert("Please enter a todo");
       return;
@@ -95,22 +95,14 @@ function App() {
       const response = await axios.post("http://localhost:5001/todos/", {
         name: newTodo,
       });
+      setTodos((prevTodos) => [...prevTodos, response.data]);
       setNewTodo("");
-      getProductList();
     } catch (error) {
-      console.error("Error fetching todos:", error);
+      alert(`Failed to add todo: ${error.message}`);
     }
   };
 
-  const handleInputChange = (e) => {
-    setNewTodo(e.target.value); // 更新输入框的值
-  };
-
-  useEffect(() => {
-    getProductList();
-  }, []);
-
-  const handleInputUpdate = async (e, todoId) => {
+  const handleEditTodo = async (e, todoId) => {
     try {
       const response = await axios.put(
         `http://localhost:5001/todos/${todoId}`,
@@ -118,7 +110,7 @@ function App() {
           name: e.target.value,
         }
       );
-      getProductList();
+      getTodoLists();
     } catch (error) {
       console.error("Error fetching todos:", error);
     }
@@ -129,25 +121,29 @@ function App() {
       const response = await axios.delete(
         `http://localhost:5001/todos/${todoId}`
       );
-      getProductList();
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
     } catch (error) {
       console.error("Error delete todo:", error);
     }
   };
 
+  useEffect(() => {
+    getTodoLists();
+  }, []);
+
   return (
     <Wrapper>
       <Header>
         <Input value={newTodo} onChange={handleInputChange} />
-        <Button onClick={addTodo}>Add Todo</Button>
+        <Button onClick={handleAddTodo}>Add Todo</Button>
       </Header>
       {todos.map((todo) => {
         return (
-          <ListItem>
+          <ListItem key={todo.id}>
             <TodoInput
               type="text"
               value={todo.name}
-              onChange={(e) => handleInputUpdate(e, todo.id)}
+              onChange={(e) => handleEditTodo(e, todo.id)}
             />
             <DeleteButton onClick={() => handleDeleteTodo(todo.id)}>
               delete
