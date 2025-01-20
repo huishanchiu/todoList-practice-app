@@ -1,0 +1,16 @@
+FROM node:18
+
+# 設定工作目錄
+WORKDIR /BE
+
+COPY ./package.json ./
+COPY ./package-lock.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 5001
+
+# 以 npm start 命令啟動後端
+CMD ["node", "index.js"]
